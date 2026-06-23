@@ -1,0 +1,403 @@
+/* -------------------------------------------------------------------------- */
+/* Sri Gowthami Educational Institutions - CRM Theme & Design System         */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  /* Fonts */
+  --font-main: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+
+  /* Colors - Light Theme (Default) */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-light: #eff6ff;
+  --secondary: #d97706;
+  --secondary-hover: #b45309;
+  
+  --bg-app: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-sidebar: #0f172a;
+  --bg-sidebar-hover: #1e293b;
+  --bg-sidebar-active: #2563eb;
+  
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-light: #94a3b8;
+  --text-on-primary: #ffffff;
+  --text-sidebar: #cbd5e1;
+  --text-sidebar-active: #ffffff;
+  
+  --border: #e2e8f0;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Status Colors */
+  --status-enquired-bg: #e0f2fe;
+  --status-enquired-text: #0369a1;
+  --status-followup-bg: #fef3c7;
+  --status-followup-text: #b45309;
+  --status-admitted-bg: #dcfce7;
+  --status-admitted-text: #15803d;
+  --status-closed-bg: #fee2e2;
+  --status-closed-text: #b91c1c;
+
+  /* Dimensions */
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 70px;
+  --topbar-height: 70px;
+  --border-radius-sm: 6px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  
+  /* Transition */
+  --transition-fast: all 0.2s ease;
+  --transition-normal: all 0.3s ease;
+}
+
+/* Dark Mode Theme Variables */
+.dark-theme {
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-light: #1e293b;
+  --secondary: #f59e0b;
+  --secondary-hover: #d97706;
+  
+  --bg-app: #0b0f19;
+  --bg-card: #151f32;
+  --bg-sidebar: #0d131f;
+  --bg-sidebar-hover: #1e293b;
+  --bg-sidebar-active: #3b82f6;
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+  --border: #1e293b;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  
+  --status-enquired-bg: #0c4a6e;
+  --status-enquired-text: #38bdf8;
+  --status-followup-bg: #78350f;
+  --status-followup-text: #fde047;
+  --status-admitted-bg: #064e3b;
+  --status-admitted-text: #4ade80;
+  --status-closed-bg: #7f1d1d;
+  --status-closed-text: #fca5a5;
+}
+
+/* Base Resets */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+  overflow-x: hidden;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-light);
+}
+
+/* Typography Helpers */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--border-radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--text-on-primary);
+}
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border-color: var(--border);
+  color: var(--text-main);
+}
+.btn-secondary:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-danger {
+  background-color: transparent;
+  border-color: var(--status-closed-text);
+  color: var(--status-closed-text);
+}
+.btn-danger:hover {
+  background-color: var(--status-closed-bg);
+}
+
+.btn-icon {
+  padding: 8px;
+  border-radius: var(--border-radius-sm);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+}
+.btn-icon:hover {
+  background-color: var(--border);
+  color: var(--text-main);
+}
+
+/* Input Fields */
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+}
+.form-control {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-family: var(--font-main);
+  background-color: var(--bg-app);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-md);
+  color: var(--text-main);
+  transition: var(--transition-fast);
+}
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  background-color: var(--bg-card);
+}
+.form-control::placeholder {
+  color: var(--text-light);
+}
+
+/* Cards & Shell Layout */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: var(--sidebar-width);
+  transition: margin-left var(--transition-normal);
+}
+
+.main-content.collapsed {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+.page-body {
+  flex: 1;
+  padding: 30px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-normal), background-color var(--transition-normal);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Status Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.badge-enquired {
+  background-color: var(--status-enquired-bg);
+  color: var(--status-enquired-text);
+}
+.badge-followup {
+  background-color: var(--status-followup-bg);
+  color: var(--status-followup-text);
+}
+.badge-admitted {
+  background-color: var(--status-admitted-bg);
+  color: var(--status-admitted-text);
+}
+.badge-closed {
+  background-color: var(--status-closed-bg);
+  color: var(--status-closed-text);
+}
+
+/* Tables */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border);
+}
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+  background-color: var(--bg-card);
+}
+.custom-table th {
+  background-color: var(--bg-app);
+  padding: 16px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.custom-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-main);
+}
+.custom-table tr:last-child td {
+  border-bottom: none;
+}
+.custom-table tbody tr:hover {
+  background-color: var(--primary-light);
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  :root {
+    --sidebar-width: 240px;
+  }
+  .main-content {
+    margin-left: 0 !important;
+  }
+  
+  .sidebar-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+  }
+  
+  .sidebar-drawer.open {
+    transform: translateX(0);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.15);
+  }
+}
+
+@media (max-width: 768px) {
+  .page-body {
+    padding: 15px;
+  }
+  
+  .card {
+    padding: 16px;
+  }
+}
+
+/* Print Styling */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .sidebar, .topbar, .btn, .no-print, .actions-column {
+    display: none !important;
+  }
+  .main-content {
+    margin-left: 0 !important;
+  }
+  .page-body {
+    padding: 0 !important;
+  }
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  .custom-table th {
+    background-color: #f1f5f9 !important;
+    color: #000000 !important;
+    border-bottom: 2px solid #000000 !important;
+  }
+  .custom-table td {
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+}
