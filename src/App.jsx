@@ -12,7 +12,6 @@ import FollowUps from './pages/FollowUps';
 import Admissions from './pages/Admissions';
 import Reports from './pages/Reports';
 import MyEnquiries from './pages/MyEnquiries';
-import MyStatus from './pages/MyStatus';
 import Counsellors from './pages/Counsellors';
 
 function AppContent() {
@@ -26,21 +25,8 @@ function AppContent() {
   useEffect(() => {
     if (!currentUser) return;
 
-    const roleAllowedPages = {
-      admin: ['dashboard', 'new-enquiry', 'students', 'follow-ups', 'admissions', 'reports', 'counsellors'],
-      counsellor: ['dashboard', 'follow-ups', 'admissions', 'my-enquiries'],
-      student: ['new-enquiry', 'my-status']
-    };
-
-    const allowed = roleAllowedPages[currentUser.role] || [];
-    
-    if (!allowed.includes(currentPage)) {
-      // Force fallback to role's default landing page on login/session start
-      if (currentUser.role === 'admin' || currentUser.role === 'counsellor') {
-        setCurrentPage('dashboard');
-      } else {
-        setCurrentPage('new-enquiry');
-      }
+    if (currentUser.role === 'admin' || currentUser.role === 'counsellor') {
+      setCurrentPage('dashboard');
     }
   }, [currentUser]);
 
@@ -72,6 +58,8 @@ function AppContent() {
     );
   }
 
+
+
   // Authentication Guard
   if (!currentUser) {
     return <Login />;
@@ -81,8 +69,7 @@ function AppContent() {
   const renderPage = () => {
     const roleAllowedPages = {
       admin: ['dashboard', 'new-enquiry', 'students', 'follow-ups', 'admissions', 'reports', 'counsellors'],
-      counsellor: ['dashboard', 'follow-ups', 'admissions', 'my-enquiries'],
-      student: ['new-enquiry', 'my-status']
+      counsellor: ['dashboard', 'follow-ups', 'admissions', 'my-enquiries', 'new-enquiry']
     };
 
     const allowed = roleAllowedPages[currentUser.role] || [];
@@ -115,6 +102,8 @@ function AppContent() {
         return <Dashboard setCurrentPage={setCurrentPage} setSelectedEnquiryId={setSelectedEnquiryId} />;
       case 'new-enquiry':
         return <NewEnquiry setCurrentPage={setCurrentPage} />;
+      case 'login':
+        return <Login />;
       case 'students':
         return <Students />;
       case 'follow-ups':
@@ -125,12 +114,10 @@ function AppContent() {
         return <Reports />;
       case 'my-enquiries':
         return <MyEnquiries />;
-      case 'my-status':
-        return <MyStatus />;
       case 'counsellors':
         return <Counsellors />;
       default:
-        return <Dashboard setCurrentPage={setCurrentPage} setSelectedEnquiryId={setSelectedEnquiryId} />;
+        return currentUser ? <Dashboard setCurrentPage={setCurrentPage} setSelectedEnquiryId={setSelectedEnquiryId} /> : <NewEnquiry setCurrentPage={setCurrentPage} />;
     }
   };
 

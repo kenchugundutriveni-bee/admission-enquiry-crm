@@ -28,6 +28,7 @@ export default function Dashboard({ setCurrentPage, setSelectedEnquiryId }) {
   const [updatedCounsellor, setUpdatedCounsellor] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [enquiryNotFoundError, setEnquiryNotFoundError] = useState(false);
+  const [updatedAllowRemarks, setUpdatedAllowRemarks] = useState(false);
 
   const councellors = (users || []).filter(u => u.role === 'counsellor');
 
@@ -108,6 +109,7 @@ export default function Dashboard({ setCurrentPage, setSelectedEnquiryId }) {
       setUpdatedStatus(found.admissionStatus);
       setUpdatedFollowUpDate(found.followUpDate || '');
       setUpdatedCounsellor(found.assignedCounsellor || '');
+      setUpdatedAllowRemarks(found.allowStudentRemarks || false);
       setNewNote('');
       setEnquiryNotFoundError(false);
       setDrawerOpen(true);
@@ -150,7 +152,8 @@ export default function Dashboard({ setCurrentPage, setSelectedEnquiryId }) {
     const updateData = {
       admissionStatus: updatedStatus,
       followUpDate: updatedStatus === 'Follow-up' ? updatedFollowUpDate : '',
-      counsellorNotes: finalNotes
+      counsellorNotes: finalNotes,
+      allowStudentRemarks: updatedAllowRemarks
     };
 
     if (currentUser?.role === 'admin') {
@@ -168,7 +171,8 @@ export default function Dashboard({ setCurrentPage, setSelectedEnquiryId }) {
         ...updatedRecord,
         admissionStatus: updatedStatus,
         followUpDate: updatedStatus === 'Follow-up' ? updatedFollowUpDate : '',
-        counsellorNotes: finalNotes
+        counsellorNotes: finalNotes,
+        allowStudentRemarks: updatedAllowRemarks
       });
     }
     
@@ -599,6 +603,20 @@ export default function Dashboard({ setCurrentPage, setSelectedEnquiryId }) {
                         </select>
                       </div>
                     )}
+
+                    {/* Allow Student to see remarks */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '5px', marginBottom: '5px' }}>
+                      <input
+                        type="checkbox"
+                        id="allowStudentRemarks"
+                        checked={updatedAllowRemarks}
+                        onChange={(e) => setUpdatedAllowRemarks(e.target.checked)}
+                        style={{ width: 'auto' }}
+                      />
+                      <label htmlFor="allowStudentRemarks" style={{ fontSize: '13px', color: 'var(--text-muted)', cursor: 'pointer', margin: 0 }}>
+                        Allow student/parent to view remarks
+                      </label>
+                    </div>
 
                     <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
                       Save Updates

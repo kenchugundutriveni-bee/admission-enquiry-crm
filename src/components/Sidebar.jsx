@@ -12,7 +12,8 @@ import {
   Users,
   UserCheck,
   FolderOpen,
-  ClipboardCheck
+  ClipboardCheck,
+  Lock
 } from 'lucide-react';
 import { CRMContext } from '../context/CRMContext';
 
@@ -49,16 +50,13 @@ export default function Sidebar({ currentPage, setCurrentPage, sidebarCollapsed,
       case 'counsellor':
         return [
           { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
+          { id: 'new-enquiry', name: 'New Enquiry', icon: UserPlus },
           { id: 'follow-ups', name: 'Follow Ups', icon: PhoneCall },
           { id: 'admissions', name: 'Admissions List', icon: GraduationCap },
           { id: 'my-enquiries', name: 'My Enquiries', icon: FolderOpen }
         ];
-      case 'student':
       default:
-        return [
-          { id: 'new-enquiry', name: 'New Enquiry Form', icon: UserPlus },
-          { id: 'my-status', name: 'My Status', icon: ClipboardCheck }
-        ];
+        return [];
     }
   };
 
@@ -194,7 +192,7 @@ export default function Sidebar({ currentPage, setCurrentPage, sidebarCollapsed,
             }}>
               <p style={{ fontWeight: 600, color: 'white', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentUser.name}</p>
               <p style={{ color: 'var(--text-light)', fontSize: '11px', textTransform: 'capitalize' }}>
-                {currentUser.role === 'student' ? 'Student/Parent' : currentUser.role}
+                {currentUser.role}
               </p>
             </div>
           )}

@@ -1,29 +1,18 @@
 import React, { useState, useContext } from 'react';
 import { CRMContext } from '../context/CRMContext';
-import { School, Lock, User, AlertCircle, CheckCircle, Phone } from 'lucide-react';
+import { School, Lock, User, AlertCircle, CheckCircle } from 'lucide-react';
+import NewEnquiry from './NewEnquiry';
 
 export default function Login() {
-  const { login, registerUser } = useContext(CRMContext);
-  const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const { login } = useContext(CRMContext);
+  const [viewMode, setViewMode] = useState('landing'); // 'landing', 'enquiry', 'login'
   const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
-
-  // Login inputs
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-
-  // Register inputs
-  const [regName, setRegName] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regPhone, setRegPhone] = useState('');
-  const [regRole, setRegRole] = useState('student'); // 'student' or 'counsellor'
-  const [regPassword, setRegPassword] = useState('');
-  const [regConfirmPassword, setRegConfirmPassword] = useState('');
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     setError('');
-    setSuccessMsg('');
 
     if (!loginEmail.trim() || !loginPassword) {
       setError('Please fill in all login fields.');
@@ -36,71 +25,19 @@ export default function Login() {
     }
   };
 
-  const handlePhoneChange = (val) => {
-    // Strip non-digit characters
-    const digits = val.replace(/\D/g, '');
-    // Limit to 10 characters
-    if (digits.length <= 10) {
-      setRegPhone(digits);
-    }
-  };
-
-  const validateRegistration = () => {
-    if (!regName.trim()) return 'Full name is required';
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!regEmail.trim() || !emailRegex.test(regEmail)) {
-      return 'Please enter a valid email address';
-    }
-
-    // Indian phone format checking
-    // Starts with 6,7,8,9 and is exactly 10 digits
-    const phoneRegex = /^[6-9]\d{9}$/;
-    if (!regPhone || regPhone.length !== 10 || !phoneRegex.test(regPhone)) {
-      return 'Please enter a valid Indian mobile number.';
-    }
-
-    if (regPassword.length < 6) {
-      return 'Password must be at least 6 characters long';
-    }
-
-    if (regPassword !== regConfirmPassword) {
-      return 'Passwords do not match';
-    }
-
-    return null;
-  };
-
-  const handleRegisterSubmit = (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccessMsg('');
-
-    const validationError = validateRegistration();
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-
-    const res = registerUser(regName, regEmail, regPassword, regRole, regPhone);
-    if (res.success) {
-      setSuccessMsg('Registration successful! You can now log in.');
-      setIsRegisterMode(false);
-      // Copy registered email to login view
-      setLoginEmail(regEmail);
-      // Reset registration form
-      setRegName('');
-      setRegEmail('');
-      setRegPhone('');
-      setRegRole('student');
-      setRegPassword('');
-      setRegConfirmPassword('');
-    } else {
-      setError(res.message);
-    }
-  };
-
-
+  // If viewing Enquiry Form directly
+  if (viewMode === 'enquiry') {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        backgroundColor: 'var(--bg-app)',
+        padding: '40px 20px',
+        transition: 'background-color var(--transition-normal)'
+      }}>
+        <NewEnquiry setCurrentPage={(page) => setViewMode('landing')} />
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -151,7 +88,7 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Auth Panel Card */}
+        {/* Panel Card */}
         <div className="card" style={{ padding: '24px 30px' }}>
           
           {/* Notifications */}
@@ -173,34 +110,57 @@ export default function Login() {
             </div>
           )}
 
-          {successMsg && (
-            <div style={{
-              backgroundColor: 'var(--status-admitted-bg)',
-              color: 'var(--status-admitted-text)',
-              padding: '12px',
-              borderRadius: 'var(--border-radius-md)',
-              fontSize: '13px',
-              fontWeight: 500,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              marginBottom: '20px'
-            }}>
-              <CheckCircle size={16} />
-              <span>{successMsg}</span>
-            </div>
-          )}
+          {viewMode === 'landing' ? (
+            /* LANDING VIEW */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', textAlign: 'center' }}>
+              <div style={{ marginBottom: '10px' }}>
+                <h3 style={{ fontSize: '18px', color: 'var(--text-main)', fontWeight: 700 }}>
+                  Admission Enquiry Portal
+                </h3>
+                <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                  Welcome! Please select an option below to continue
+                </p>
+              </div>
 
-          {/* Form Switcher */}
-          {!isRegisterMode ? (
-            /* SIGN IN FORM */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <button
+                  onClick={() => setViewMode('enquiry')}
+                  className="btn btn-primary"
+                  style={{ width: '100%', padding: '14px', fontSize: '14px', fontWeight: 600 }}
+                >
+                  Submit Admission Enquiry
+                </button>
+              </div>
+              <div style={{ marginTop: '16px', textAlign: 'center' }}>
+                <button
+                  onClick={() => setViewMode('login')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-light)',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    padding: '5px 10px',
+                    transition: 'color var(--transition-fast)'
+                  }}
+                  onMouseEnter={(e) => e.target.style.color = 'var(--primary)'}
+                  onMouseLeave={(e) => e.target.style.color = 'var(--text-light)'}
+                >
+                  Staff Login
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* STAFF LOGIN VIEW */
             <div>
               <div style={{ marginBottom: '20px' }}>
                 <h3 style={{ fontSize: '18px', color: 'var(--text-main)', fontWeight: 700 }}>
-                  Account Sign In
+                  Staff Sign In
                 </h3>
                 <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                  Enter your email and password to access the system
+                  Enter your administrative credentials to log in
                 </p>
               </div>
 
@@ -218,7 +178,7 @@ export default function Login() {
                     <input
                       type="email"
                       className="form-control"
-                      placeholder="e.g. user@gmail.com"
+                      placeholder="e.g. admin@gmail.com"
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       style={{ paddingLeft: '45px' }}
@@ -252,148 +212,24 @@ export default function Login() {
                 <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px', marginTop: '10px' }}>
                   Sign In
                 </button>
-              </form>
 
-              <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '13px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Don't have an account? </span>
                 <button 
+                  type="button" 
+                  className="btn btn-secondary" 
                   onClick={() => {
-                    setIsRegisterMode(true);
+                    setViewMode('landing');
                     setError('');
-                    setSuccessMsg('');
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--primary)',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    textDecoration: 'underline'
-                  }}
+                  }} 
+                  style={{ width: '100%', padding: '12px', marginTop: '10px' }}
                 >
-                  Create Account
-                </button>
-              </div>
-            </div>
-          ) : (
-            /* REGISTRATION FORM */
-            <div>
-              <div style={{ marginBottom: '20px' }}>
-                <h3 style={{ fontSize: '18px', color: 'var(--text-main)', fontWeight: 700 }}>
-                  Create Account
-                </h3>
-                <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                  Sign up for student status checks or counsellor actions
-                </p>
-              </div>
-
-              <form onSubmit={handleRegisterSubmit}>
-                
-                <div className="form-group">
-                  <label>Full Name *</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g. Ramesh Babu"
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Email Address *</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    placeholder="e.g. ramesh@gmail.com"
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Indian Mobile Number *</label>
-                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                    <span style={{
-                      position: 'absolute',
-                      left: '14px',
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      color: 'var(--text-muted)',
-                      borderRight: '1px solid var(--border)',
-                      paddingRight: '10px'
-                    }}>
-                      +91
-                    </span>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="98765 43210"
-                      value={regPhone}
-                      onChange={(e) => handlePhoneChange(e.target.value)}
-                      style={{ paddingLeft: '65px' }}
-                      required
-                    />
-                  </div>
-                </div>
-
-
-
-                <div className="form-group">
-                  <label>Password * (Min 6 chars)</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    placeholder="••••••••"
-                    value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Confirm Password *</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    placeholder="••••••••"
-                    value={regConfirmPassword}
-                    onChange={(e) => setRegConfirmPassword(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px', marginTop: '10px' }}>
-                  Register Account
+                  Back to Home
                 </button>
               </form>
-
-              <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '13px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Already registered? </span>
-                <button 
-                  onClick={() => {
-                    setIsRegisterMode(false);
-                    setError('');
-                    setSuccessMsg('');
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--primary)',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    textDecoration: 'underline'
-                  }}
-                >
-                  Sign In
-                </button>
-              </div>
             </div>
           )}
 
         </div>
+
       </div>
     </div>
   );

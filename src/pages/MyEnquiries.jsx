@@ -21,12 +21,14 @@ export default function MyEnquiries() {
   const [newNote, setNewNote] = useState('');
   const [updatedStatus, setUpdatedStatus] = useState('');
   const [updatedFollowUpDate, setUpdatedFollowUpDate] = useState('');
+  const [updatedAllowRemarks, setUpdatedAllowRemarks] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Filter only enquiries assigned to this counsellor
+  // Filter only enquiries: assigned to this counsellor (if counsellor/admin) or submitted by this student (if student)
   const myAssignedEnquiries = enquiries.filter(enq => {
-    const isAssigned = enq.assignedCounsellor === currentUser?.email;
-    if (!isAssigned) return false;
+    const isMatched = enq.assignedCounsellor === currentUser?.email;
+
+    if (!isMatched) return false;
 
     // Apply dashboard filter
     if (dashboardFilter && dashboardFilter.status) {
@@ -52,6 +54,7 @@ export default function MyEnquiries() {
     setSelectedEnquiry(enquiry);
     setUpdatedStatus(enquiry.admissionStatus);
     setUpdatedFollowUpDate(enquiry.followUpDate || '');
+    setUpdatedAllowRemarks(enquiry.allowStudentRemarks || false);
     setNewNote('');
     setDrawerOpen(true);
   };
@@ -87,7 +90,8 @@ export default function MyEnquiries() {
     updateEnquiry(selectedEnquiry.id, {
       admissionStatus: updatedStatus,
       followUpDate: updatedStatus === 'Follow-up' ? updatedFollowUpDate : '',
-      counsellorNotes: finalNotes
+      counsellorNotes: finalNotes,
+      allowStudentRemarks: updatedAllowRemarks
     });
 
     alert('Enquiry updated successfully.');
@@ -99,7 +103,8 @@ export default function MyEnquiries() {
         ...updatedRecord,
         admissionStatus: updatedStatus,
         followUpDate: updatedStatus === 'Follow-up' ? updatedFollowUpDate : '',
-        counsellorNotes: finalNotes
+        counsellorNotes: finalNotes,
+        allowStudentRemarks: updatedAllowRemarks
       });
     }
     
@@ -271,7 +276,9 @@ export default function MyEnquiries() {
             backgroundColor: 'var(--bg-app)'
           }}>
             <div>
-              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-light)' }}>ASSIGNED ENQUIRY</span>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-light)' }}>
+                ASSIGNED ENQUIRY
+              </span>
               <h3 style={{ fontSize: '16px', color: 'var(--text-main)' }}>{selectedEnquiry.id}</h3>
             </div>
             <button className="btn-icon" onClick={handleCloseDrawer}>
@@ -385,6 +392,20 @@ export default function MyEnquiries() {
                     />
                   </div>
                 )}
+
+                {/* Allow Student to see remarks */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '5px', marginBottom: '5px' }}>
+                  <input
+                    type="checkbox"
+                    id="allowStudentRemarks"
+                    checked={updatedAllowRemarks}
+                    onChange={(e) => setUpdatedAllowRemarks(e.target.checked)}
+                    style={{ width: 'auto' }}
+                  />
+                  <label htmlFor="allowStudentRemarks" style={{ fontSize: '13px', color: 'var(--text-muted)', cursor: 'pointer', margin: 0 }}>
+                    Allow student/parent to view remarks
+                  </label>
+                </div>
 
                 <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
                   Save Updates

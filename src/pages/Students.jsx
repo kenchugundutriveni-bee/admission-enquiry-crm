@@ -21,6 +21,7 @@ export default function Students() {
   const [newNote, setNewNote] = useState('');
   const [followUpDate, setFollowUpDate] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [allowStudentRemarks, setAllowStudentRemarks] = useState(false);
 
   const councellors = (users || []).filter(u => u.role === 'counsellor');
 
@@ -75,6 +76,7 @@ export default function Students() {
     setAssignedCounsellor(enquiry.assignedCounsellor || '');
     setCounsellorNotes(enquiry.counsellorNotes || '');
     setFollowUpDate(enquiry.followUpDate || '');
+    setAllowStudentRemarks(enquiry.allowStudentRemarks || false);
     setNewNote('');
     setDrawerOpen(true);
   };
@@ -129,7 +131,8 @@ export default function Students() {
       admissionStatus,
       assignedCounsellor,
       followUpDate: admissionStatus === 'Follow-up' ? followUpDate : '',
-      counsellorNotes: finalNotes
+      counsellorNotes: finalNotes,
+      allowStudentRemarks: allowStudentRemarks
     };
 
     updateEnquiry(selectedEnquiry.id, updatedData);
@@ -495,6 +498,20 @@ export default function Students() {
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
                 />
+              </div>
+
+              {/* Allow Student to see remarks */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '5px', marginBottom: '5px' }}>
+                <input
+                  type="checkbox"
+                  id="allowStudentRemarks"
+                  checked={allowStudentRemarks}
+                  onChange={(e) => setAllowStudentRemarks(e.target.checked)}
+                  style={{ width: 'auto' }}
+                />
+                <label htmlFor="allowStudentRemarks" style={{ fontSize: '13px', color: 'var(--text-muted)', cursor: 'pointer', margin: 0 }}>
+                  Allow student/parent to view remarks
+                </label>
               </div>
 
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>

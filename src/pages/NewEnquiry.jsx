@@ -3,7 +3,7 @@ import { CRMContext } from '../context/CRMContext';
 import { UserPlus, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function NewEnquiry({ setCurrentPage }) {
-  const { addEnquiry, users, currentUser } = useContext(CRMContext);
+  const { addEnquiry, enquiries, currentUser } = useContext(CRMContext);
   
   // Form Fields
   const [studentName, setStudentName] = useState('');
@@ -16,8 +16,11 @@ export default function NewEnquiry({ setCurrentPage }) {
 
   // UI state
   const [errors, setErrors] = useState({});
+  const [warning, setWarning] = useState('');
   const [success, setSuccess] = useState(false);
   const [lastSubmittedId, setLastSubmittedId] = useState('');
+
+
 
   const courses = [
     'MPC (Maths, Physics, Chemistry)',
@@ -46,33 +49,33 @@ export default function NewEnquiry({ setCurrentPage }) {
     const newErrors = {};
 
     if (!studentName.trim()) {
-      newErrors.studentName = 'Student name is required';
+      newErrors.studentName = 'Student Full Name is required';
     }
     if (!parentName.trim()) {
-      newErrors.parentName = 'Parent/Guardian name is required';
+      newErrors.parentName = 'Parent / Guardian Name is required';
     }
     
     // Strict Indian phone validation: 10 digits starting with 6, 7, 8, or 9
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phone) {
-      newErrors.phone = 'Phone number is required';
+      newErrors.phone = 'Indian Mobile Number is required';
     } else if (phone.length !== 10 || !phoneRegex.test(phone)) {
       newErrors.phone = 'Please enter a valid Indian mobile number.';
     }
 
-    if (email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        newErrors.email = 'Please enter a valid email address';
-      }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !email.trim()) {
+      newErrors.email = 'Email Address is required';
+    } else if (!emailRegex.test(email.trim())) {
+      newErrors.email = 'Please enter a valid email address.';
     }
 
     if (!courseInterest) {
-      newErrors.courseInterest = 'Please select a course';
+      newErrors.courseInterest = 'Course Interest must be selected';
     }
 
     if (!campusPreference) {
-      newErrors.campusPreference = 'Please select a campus';
+      newErrors.campusPreference = 'Campus Preference must be selected';
     }
 
     setErrors(newErrors);
@@ -81,7 +84,22 @@ export default function NewEnquiry({ setCurrentPage }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setWarning('');
     if (!validate()) return;
+
+    // Duplicate Check
+    const isDuplicate = (enquiries || []).some(enq => 
+      (enq.phone && enq.phone === phone) || 
+      (enq.email && enq.email.toLowerCase() === email.trim().toLowerCase())
+    );
+
+    if (isDuplicate) {
+      setWarning('An enquiry already exists with this phone number or email.');
+      return;
+    }
+
+    const isCounsellor = currentUser && currentUser.role === 'counsellor';
+    const isAdmin = currentUser && currentUser.role === 'admin';
 
     const data = {
       studentName: studentName.trim(),
@@ -92,10 +110,12 @@ export default function NewEnquiry({ setCurrentPage }) {
       campusPreference,
       followUpDate: '',
       admissionStatus: 'New Enquiry',
-      assignedCounsellor: '',
+      assignedCounsellor: isCounsellor ? currentUser.email : 'Unassigned',
       messageDetails: messageDetails.trim(),
       counsellorNotes: '',
-      submittedBy: currentUser?.role === 'student' ? currentUser.email : ''
+      submittedBy: currentUser ? currentUser.email : '',
+      createdBy: currentUser ? currentUser.email : '',
+      source: isCounsellor ? 'Counsellor Entry' : (isAdmin ? 'Manual Entry' : 'Public Web Form')
     };
 
     const newEnquiry = addEnquiry(data);
@@ -113,6 +133,7 @@ export default function NewEnquiry({ setCurrentPage }) {
     setCampusPreference('');
     setMessageDetails('');
     setErrors({});
+    setWarning('');
   };
 
   return (
@@ -140,12 +161,9 @@ export default function NewEnquiry({ setCurrentPage }) {
             <CheckCircle size={40} />
           </div>
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)' }}>
-              Enquiry submitted successfully.
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-main)' }}>
+              Enquiry submitted successfully. Our admission team will contact you soon.
             </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '5px' }}>
-              Reference ID: <strong>{lastSubmittedId}</strong> has been logged.
-            </p>
           </div>
           <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
             <button 
@@ -155,10 +173,10 @@ export default function NewEnquiry({ setCurrentPage }) {
               Submit Another Enquiry
             </button>
             <button 
-              onClick={() => setCurrentPage(currentUser?.role === 'student' ? 'my-status' : 'dashboard')}
+              onClick={() => setCurrentPage(currentUser ? 'dashboard' : 'landing')}
               className="btn btn-secondary"
             >
-              {currentUser?.role === 'student' ? 'View My Status' : 'Go to Dashboard'}
+              {currentUser ? 'Go to Dashboard' : 'Back to Home'}
             </button>
           </div>
         </div>
@@ -182,6 +200,23 @@ export default function NewEnquiry({ setCurrentPage }) {
           </div>
 
           <form onSubmit={handleSubmit}>
+            {warning && (
+              <div style={{
+                backgroundColor: 'var(--status-closed-bg)',
+                color: 'var(--status-closed-text)',
+                padding: '12px',
+                borderRadius: 'var(--border-radius-md)',
+                fontSize: '13px',
+                fontWeight: 500,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '20px'
+              }}>
+                <AlertCircle size={16} />
+                <span>{warning}</span>
+              </div>
+            )}
             
             {/* Student & Parent Name */}
             <div style={{
@@ -256,11 +291,12 @@ export default function NewEnquiry({ setCurrentPage }) {
                     }}
                   />
                 </div>
-                {errors.phone && (
+                 {errors.phone && (
                   <span style={{ fontSize: '12px', color: 'var(--status-closed-text)', marginTop: '4px', display: 'block' }}>
                     {errors.phone}
                   </span>
                 )}
+
               </div>
 
               <div className="form-group">
@@ -347,7 +383,7 @@ export default function NewEnquiry({ setCurrentPage }) {
             }}>
               <button 
                 type="button" 
-                onClick={() => setCurrentPage(currentUser?.role === 'student' ? 'my-status' : 'dashboard')}
+                onClick={() => setCurrentPage(currentUser ? 'dashboard' : 'landing')}
                 className="btn btn-secondary"
               >
                 Cancel

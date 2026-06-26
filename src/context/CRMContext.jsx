@@ -157,6 +157,62 @@ export const CRMProvider = ({ children }) => {
     return { success: true };
   };
 
+  const continueAsStudent = (email) => {
+    if (!email || !email.trim()) {
+      return { success: false, message: 'Please enter your email address.' };
+    }
+    const trimmedEmail = email.trim().toLowerCase();
+    const foundUser = users.find(u => u.email.toLowerCase() === trimmedEmail);
+
+    if (foundUser) {
+      // Check if the user is a staff member
+      if (foundUser.role === 'admin' || foundUser.role === 'counsellor') {
+        return {
+          success: false,
+          message: 'This email belongs to a staff member. Please sign in using the standard Sign In form.'
+        };
+      }
+
+      const userSession = {
+        email: foundUser.email,
+        name: foundUser.name,
+        role: foundUser.role,
+        phone: foundUser.phone || '',
+        loginTime: new Date().toISOString()
+      };
+      setCurrentUser(userSession);
+      localStorage.setItem('crm_session', JSON.stringify(userSession));
+      return { success: true };
+    } else {
+      // Auto-create new student
+      const emailParts = trimmedEmail.split('@');
+      const rawName = emailParts[0] || 'Student';
+      const capitalizedName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+
+      const newStudent = {
+        name: capitalizedName,
+        email: trimmedEmail,
+        password: '',
+        role: 'student',
+        phone: ''
+      };
+
+      const updatedUsers = [...users, newStudent];
+      saveUsersToStorage(updatedUsers);
+
+      const userSession = {
+        email: newStudent.email,
+        name: newStudent.name,
+        role: newStudent.role,
+        phone: '',
+        loginTime: new Date().toISOString()
+      };
+      setCurrentUser(userSession);
+      localStorage.setItem('crm_session', JSON.stringify(userSession));
+      return { success: true };
+    }
+  };
+
   // CRUD Operations
   const addEnquiry = (enquiryData) => {
     // Generate a unique ID using Date.now() and a random suffix to guarantee uniqueness
@@ -203,6 +259,7 @@ export const CRMProvider = ({ children }) => {
         login,
         logout,
         registerUser,
+        continueAsStudent,
         addEnquiry,
         updateEnquiry,
         deleteEnquiry,

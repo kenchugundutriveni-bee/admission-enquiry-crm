@@ -12,6 +12,7 @@ export default function Admissions() {
   const [newNote, setNewNote] = useState('');
   const [updatedStatus, setUpdatedStatus] = useState('');
   const [updatedCounsellor, setUpdatedCounsellor] = useState('');
+  const [updatedAllowRemarks, setUpdatedAllowRemarks] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Filter only admitted students (status === 'Admitted')
@@ -49,12 +50,13 @@ export default function Admissions() {
     'Elite Campus - Amalapuram'
   ];
 
-  const counsellors = users.filter(u => u.role === 'counsellor');
+  const counsellors = users ? users.filter(user => user.role === "counsellor") : [];
 
   const handleOpenDetail = (enquiry) => {
     setSelectedEnquiry(enquiry);
     setUpdatedStatus(enquiry.admissionStatus);
     setUpdatedCounsellor(enquiry.assignedCounsellor || '');
+    setUpdatedAllowRemarks(enquiry.allowStudentRemarks || false);
     setNewNote('');
     setDrawerOpen(true);
   };
@@ -84,7 +86,8 @@ export default function Admissions() {
 
     const updateData = {
       admissionStatus: updatedStatus,
-      counsellorNotes: finalNotes
+      counsellorNotes: finalNotes,
+      allowStudentRemarks: updatedAllowRemarks
     };
 
     if (currentUser?.role === 'admin') {
@@ -287,155 +290,189 @@ export default function Admissions() {
       </div>
 
       {/* RIGHT: Detail Side Drawer */}
-      {drawerOpen && selectedEnquiry && (
-        <div style={{
-          width: '380px',
-          backgroundColor: 'var(--bg-card)',
-          borderRadius: 'var(--border-radius-lg)',
-          border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow-lg)',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          zIndex: 10,
-          animation: 'fadeIn 0.2s ease forwards'
-        }}>
+      {drawerOpen && (
+        selectedEnquiry ? (
           <div style={{
-            padding: '20px',
-            borderBottom: '1px solid var(--border)',
+            width: '380px',
+            backgroundColor: 'var(--bg-card)',
+            borderRadius: 'var(--border-radius-lg)',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow-lg)',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: 'var(--bg-app)'
+            flexDirection: 'column',
+            overflow: 'hidden',
+            zIndex: 10,
+            animation: 'fadeIn 0.2s ease forwards'
           }}>
-            <div>
-              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-light)' }}>MANAGE ADMISSION</span>
-              <h3 style={{ fontSize: '16px', color: 'var(--text-main)' }}>{selectedEnquiry.id}</h3>
-            </div>
-            <button className="btn-icon" onClick={handleCloseDrawer}>
-              <XCircle size={20} />
-            </button>
-          </div>
-
-          <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <User size={18} style={{ color: 'var(--primary)' }} />
-                <span style={{ fontWeight: 700, fontSize: '15px' }}>{selectedEnquiry.studentName}</span>
+            <div style={{
+              padding: '20px',
+              borderBottom: '1px solid var(--border)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: 'var(--bg-app)'
+            }}>
+              <div>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-light)' }}>ADMISSION STATUS</span>
+                <h3 style={{ fontSize: '16px', color: 'var(--text-main)' }}>{selectedEnquiry.id}</h3>
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', paddingLeft: '26px' }}>
+              <button className="btn-icon" onClick={handleCloseDrawer}>
+                <XCircle size={20} />
+              </button>
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <span style={{ fontWeight: 700, fontSize: '15px' }}>{selectedEnquiry.studentName}</span>
                 <p>Parent/Guardian: <strong>{selectedEnquiry.parentName}</strong></p>
                 <p>Contact No: <strong>+91 {selectedEnquiry.phone}</strong></p>
                 {selectedEnquiry.email && <p>Email: {selectedEnquiry.email}</p>}
-                <p>Assigned Counsellor: <strong>
+                <p>Counsellor: <strong>
                   {users.find(u => u.email === selectedEnquiry.assignedCounsellor)?.name || 'Unassigned'}
                 </strong></p>
               </div>
-            </div>
 
-            {selectedEnquiry.messageDetails && (
+              {selectedEnquiry.messageDetails && (
+                <div style={{ borderTop: '1px dashed var(--border)', paddingTop: '15px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>Original Message</label>
+                  <p style={{
+                    marginTop: '4px',
+                    backgroundColor: 'var(--bg-app)',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    color: 'var(--text-main)',
+                    lineHeight: 1.4
+                  }}>
+                    {selectedEnquiry.messageDetails}
+                  </p>
+                </div>
+              )}
+
               <div style={{ borderTop: '1px solid var(--border)', paddingTop: '15px' }}>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>Message / Enquiry Details</label>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>Counsellor Action Log</label>
                 <div style={{
                   marginTop: '6px',
                   backgroundColor: 'var(--bg-app)',
                   padding: '12px',
                   borderRadius: 'var(--border-radius-md)',
                   fontSize: '13px',
-                  maxHeight: '120px',
+                  maxHeight: '150px',
                   overflowY: 'auto',
                   whiteSpace: 'pre-wrap',
                   border: '1px solid var(--border)',
                   lineHeight: 1.4
                 }}>
-                  {selectedEnquiry.messageDetails}
+                  {selectedEnquiry.counsellorNotes || "No notes logged."}
                 </div>
               </div>
-            )}
 
-            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '15px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>Counsellor Notes</label>
-              <div style={{
-                marginTop: '6px',
-                backgroundColor: 'var(--bg-app)',
-                padding: '12px',
-                borderRadius: 'var(--border-radius-md)',
-                fontSize: '13px',
-                maxHeight: '150px',
-                overflowY: 'auto',
-                whiteSpace: 'pre-wrap',
-                border: '1px solid var(--border)',
-                lineHeight: 1.4
-              }}>
-                {selectedEnquiry.counsellorNotes || "No notes logged."}
-              </div>
-            </div>
-
-            {(currentUser?.role === 'admin' || currentUser?.role === 'counsellor') && (
-              <form onSubmit={handleSaveInteraction} style={{ borderTop: '1px solid var(--border)', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label>Add Progress Note</label>
-                  <textarea
-                    rows="3"
-                    className="form-control"
-                    placeholder="Type updates here..."
-                    value={newNote}
-                    onChange={(e) => setNewNote(e.target.value)}
-                  />
-                </div>
-
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label>Update Admission Status</label>
-                  <select
-                    className="form-control"
-                    value={updatedStatus}
-                    onChange={(e) => setUpdatedStatus(e.target.value)}
-                  >
-                    <option value="New Enquiry">New Enquiry</option>
-                    <option value="Follow-up">Follow-up</option>
-                    <option value="Interested">Interested</option>
-                    <option value="Admitted">Admitted</option>
-                    <option value="Not Interested">Not Interested</option>
-                  </select>
-                </div>
-
-                {currentUser?.role === 'admin' && (
+              {(currentUser?.role === 'admin' || currentUser?.role === 'counsellor') && (
+                <form onSubmit={handleSaveInteraction} style={{ borderTop: '1px solid var(--border)', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label>Re-assign Counsellor</label>
+                    <label>Add Progress Note</label>
+                    <textarea
+                      rows="3"
+                      className="form-control"
+                      placeholder="Type updates here..."
+                      value={newNote}
+                      onChange={(e) => setNewNote(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>Update Admission Status</label>
                     <select
                       className="form-control"
-                      value={updatedCounsellor}
-                      onChange={(e) => setUpdatedCounsellor(e.target.value)}
+                      value={updatedStatus}
+                      onChange={(e) => setUpdatedStatus(e.target.value)}
                     >
-                      <option value="">-- Unassigned --</option>
-                      {councellors.map(c => (
-                        <option key={c.email} value={c.email}>{c.name}</option>
-                      ))}
+                      <option value="New Enquiry">New Enquiry</option>
+                      <option value="Follow-up">Follow-up</option>
+                      <option value="Interested">Interested</option>
+                      <option value="Admitted">Admitted</option>
+                      <option value="Not Interested">Not Interested</option>
                     </select>
                   </div>
-                )}
 
-                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-                  Save Updates
+                  {currentUser?.role === 'admin' && (
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Re-assign Counsellor</label>
+                      <select
+                        className="form-control"
+                        value={updatedCounsellor}
+                        onChange={(e) => setUpdatedCounsellor(e.target.value)}
+                      >
+                        <option value="">-- Unassigned --</option>
+                        {(counsellors || []).map(c => (
+                          <option key={c.email} value={c.email}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Allow Student to see remarks */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '5px', marginBottom: '5px' }}>
+                    <input
+                      type="checkbox"
+                      id="allowStudentRemarks"
+                      checked={updatedAllowRemarks}
+                      onChange={(e) => setUpdatedAllowRemarks(e.target.checked)}
+                      style={{ width: 'auto' }}
+                    />
+                    <label htmlFor="allowStudentRemarks" style={{ fontSize: '13px', color: 'var(--text-muted)', cursor: 'pointer', margin: 0 }}>
+                      Allow student/parent to view remarks
+                    </label>
+                  </div>
+
+                  <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                    Save Updates
+                  </button>
+                </form>
+              )}
+
+              {currentUser && currentUser.role === 'admin' && (
+                <button
+                  onClick={() => handleDelete(selectedEnquiry.id)}
+                  className="btn btn-danger"
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}
+                >
+                  <Trash2 size={16} />
+                  <span>Delete Admission (Admin)</span>
                 </button>
-              </form>
-            )}
+              )}
 
-            {currentUser && currentUser.role === 'admin' && (
-              <button
-                onClick={() => handleDelete(selectedEnquiry.id)}
-                className="btn btn-danger"
-                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}
-              >
-                <Trash2 size={16} />
-                <span>Delete Admission (Admin)</span>
-              </button>
-            )}
-
+            </div>
           </div>
-        </div>
+        ) : (
+          <div style={{
+            width: '380px',
+            backgroundColor: 'var(--bg-card)',
+            borderRadius: 'var(--border-radius-lg)',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow-lg)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '40px 20px',
+            textAlign: 'center',
+            color: 'var(--text-muted)',
+            zIndex: 10,
+            animation: 'fadeIn 0.2s ease forwards'
+          }}>
+            <div>
+              <p style={{ fontSize: '15px', fontWeight: 600 }}>Admission record not found.</p>
+              <button 
+                onClick={handleCloseDrawer} 
+                className="btn btn-secondary" 
+                style={{ marginTop: '15px', padding: '8px 16px' }}
+              >
+                Close Drawer
+              </button>
+            </div>
+          </div>
+        )
       )}
 
     </div>
