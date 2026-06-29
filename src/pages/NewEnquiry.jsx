@@ -82,21 +82,10 @@ export default function NewEnquiry({ setCurrentPage }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setWarning('');
     if (!validate()) return;
-
-    // Duplicate Check
-    const isDuplicate = (enquiries || []).some(enq => 
-      (enq.phone && enq.phone === phone) || 
-      (enq.email && enq.email.toLowerCase() === email.trim().toLowerCase())
-    );
-
-    if (isDuplicate) {
-      setWarning('An enquiry already exists with this phone number or email.');
-      return;
-    }
 
     const isCounsellor = currentUser && currentUser.role === 'counsellor';
     const isAdmin = currentUser && currentUser.role === 'admin';
@@ -118,10 +107,14 @@ export default function NewEnquiry({ setCurrentPage }) {
       source: isCounsellor ? 'Counsellor Entry' : (isAdmin ? 'Manual Entry' : 'Public Web Form')
     };
 
-    const newEnquiry = addEnquiry(data);
-    setLastSubmittedId(newEnquiry.id);
-    setSuccess(true);
-    resetForm();
+    const res = await addEnquiry(data);
+    if (res && res.success) {
+      setLastSubmittedId(res.id);
+      setSuccess(true);
+      resetForm();
+    } else {
+      setWarning(res?.message || 'Failed to submit enquiry.');
+    }
   };
 
   const resetForm = () => {

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { CRMContext } from '../context/CRMContext';
 import StatCard from '../components/StatCard';
 import { 
@@ -29,6 +29,27 @@ export default function Dashboard({ setCurrentPage, setSelectedEnquiryId }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [enquiryNotFoundError, setEnquiryNotFoundError] = useState(false);
   const [updatedAllowRemarks, setUpdatedAllowRemarks] = useState(false);
+  const [counts, setCounts] = useState(null);
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const res = await fetch('/api/dashboard', {
+          headers: {
+            'X-User-Email': currentUser ? currentUser.email : '',
+            'X-User-Role': currentUser ? currentUser.role : ''
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCounts(data);
+        }
+      } catch (err) {
+        console.error('Error fetching dashboard counts:', err);
+      }
+    };
+    fetchCounts();
+  }, [currentUser, enquiries]);
 
   const councellors = (users || []).filter(u => u.role === 'counsellor');
 
@@ -62,12 +83,12 @@ export default function Dashboard({ setCurrentPage, setSelectedEnquiryId }) {
   const todayStr = getTodayDateString();
 
   // 2. Calculate Metrics on visible subset
-  const totalEnquiries = visibleEnquiries.length;
-  const newEnquiriesCount = visibleEnquiries.filter(e => e.admissionStatus === 'New Enquiry').length;
-  const followUpsTodayCount = visibleEnquiries.filter(e => e.admissionStatus === 'Follow-up' && e.followUpDate === todayStr).length;
-  const interestedLeadsCount = visibleEnquiries.filter(e => e.admissionStatus === 'Interested').length;
-  const admittedCount = visibleEnquiries.filter(e => e.admissionStatus === 'Admitted').length;
-  const notInterestedLeadsCount = visibleEnquiries.filter(e => e.admissionStatus === 'Not Interested').length;
+  const totalEnquiries = counts ? counts.total : visibleEnquiries.length;
+  const newEnquiriesCount = counts ? counts.new_count : visibleEnquiries.filter(e => e.admissionStatus === 'New Enquiry').length;
+  const followUpsTodayCount = counts ? counts.follow_ups_today : visibleEnquiries.filter(e => e.admissionStatus === 'Follow-up' && e.followUpDate === todayStr).length;
+  const interestedLeadsCount = counts ? counts.interested : visibleEnquiries.filter(e => e.admissionStatus === 'Interested').length;
+  const admittedCount = counts ? counts.admitted : visibleEnquiries.filter(e => e.admissionStatus === 'Admitted').length;
+  const notInterestedLeadsCount = counts ? counts.not_interested : visibleEnquiries.filter(e => e.admissionStatus === 'Not Interested').length;
   const followUpCount = visibleEnquiries.filter(e => e.admissionStatus === 'Follow-up').length;
 
   // 3. Course-wise interest calculation

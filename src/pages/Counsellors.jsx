@@ -31,7 +31,7 @@ export default function Counsellors() {
     }
   };
 
-  const handleAddCounsellor = (e) => {
+  const handleAddCounsellor = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -58,7 +58,7 @@ export default function Counsellors() {
       return;
     }
 
-    const res = registerUser(name, email, password, 'counsellor', phone);
+    const res = await registerUser(name, email, password, 'counsellor', phone);
     if (res.success) {
       setSuccess('Counsellor account created successfully.');
       setName('');
